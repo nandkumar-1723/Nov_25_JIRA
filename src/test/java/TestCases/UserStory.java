@@ -14,8 +14,9 @@ import java.io.*;
 public class UserStory {
 
     private String cookie;
+    private String issueId;
 
-    @Test
+    @Test(priority = 0)
     public void loginJira() throws IOException, ParseException {
 
 //    Read the loginJira.json file
@@ -33,10 +34,10 @@ public class UserStory {
      cookie = "JSESSIONID="+js.getJSONObject("session").get("value").toString();
 }
 
-@Test
+@Test(priority = 1)
     public void createJira() throws IOException, ParseException {
 
-    FileReader fr = new FileReader("/home/nandkumar/Videos/restAssured_Nov/src/main/java/com/arise/Files/CreateJira.json");
+    FileReader fr = new FileReader("/home/nandkumar/Videos/Nov_25_JIRA/src/main/java/com/arise/Files/CreateUserStory.json");
     JSONParser jp = new JSONParser();
     String requestBody = jp.parse(fr).toString();
 
@@ -45,5 +46,38 @@ public class UserStory {
             .header("Cookie", cookie).when().post("/rest/api/2/issue")
             .then().log().all().extract().response();
 
+    JSONObject js = new JSONObject(response.asString());
+     issueId = js.get("key").toString();
+
+
 }
+
+@Test(priority = 3)
+    public void getUserStory(){
+    Response response = RestAssured.given().baseUri("http://localhost:9009")
+            .header("Content-Type", "application/json").header("Cookie", cookie)
+            .when().get("/rest/api/2/issue/"+issueId).then().log().all().extract().response();
+
+
+}
+
+@Test(priority = 4)
+    public void updateUserStory() throws IOException, ParseException {
+    FileReader fr = new FileReader("/home/nandkumar/Videos/Nov_25_JIRA/src/main/java/com/arise/Files/UpdateUserStory.json");
+    JSONParser jp = new JSONParser();
+    String requestBody = jp.parse(fr).toString();
+
+    Response response = RestAssured.given().baseUri("http://localhost:9009").body(requestBody)
+            .header("Content-Type", "application/json")
+            .header("Cookie", cookie).when().put("/rest/api/2/issue/"+issueId)
+            .then().log().all().extract().response();
+}
+
+@Test(priority = 5)
+    public void deleteUserStory(){
+    Response response = RestAssured.given().baseUri("http://localhost:9009").header("Content-Type", "application/json")
+            .header("Cookie", cookie).when().delete("/rest/api/2/issue/" + issueId)
+            .then().log().all().extract().response();
+}
+
 }
