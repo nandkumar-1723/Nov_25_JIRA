@@ -27,7 +27,11 @@ public class UserStory {
     Response response = RestAssured.given().baseUri("http://localhost:9009").body(requestBody)
             .header("Content-Type", "application/json")
             .when().post("/rest/auth/1/session")
-            .then().log().all().extract().response();
+            .then().extract().response();
+
+        System.out.println("Status code - "+response.getStatusCode());
+        System.out.println("Status Line "+response.getStatusLine());
+        System.out.println("Response "+response.asString());
 
 //    To get the JSESSION ID from the response ( By using JSONObject class)
     JSONObject js = new JSONObject(response.asString());
@@ -56,6 +60,7 @@ public class UserStory {
     public void getUserStory(){
     Response response = RestAssured.given().baseUri("http://localhost:9009")
             .header("Content-Type", "application/json").header("Cookie", cookie)
+            .queryParam("fields","status").queryParam("fields","priority")
             .when().get("/rest/api/2/issue/"+issueId).then().log().all().extract().response();
 
 
@@ -69,7 +74,8 @@ public class UserStory {
 
     Response response = RestAssured.given().baseUri("http://localhost:9009").body(requestBody)
             .header("Content-Type", "application/json")
-            .header("Cookie", cookie).when().put("/rest/api/2/issue/"+issueId)
+            .header("Cookie", cookie)
+            .when().put("/rest/api/2/issue/"+issueId)
             .then().log().all().extract().response();
 }
 
